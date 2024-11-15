@@ -1,0 +1,73 @@
+git clone https://github.com/sejalmm06/jira_clone.git
+cd jira_clone
+
+npm run install-dependencies
+cp api/.env.example api/.env
+#Update api/.env with your PostgreSQL credentials.
+
+#Build the React client:
+cd client
+npm run build
+
+#Start the API (in a separate terminal/tab):
+
+cd ../api
+npm start
+
+sudo nano /etc/nginx/sites-available/jira_clone
+------------------
+server {
+    listen 80;
+    server_name yourdomain.com; # Replace with your domain or server IP
+
+    # Serve React client
+    root /path/to/jira_clone/client/build;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+    # Proxy API requests
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000; # API runs on port 3000
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # Static files (optional, depending on setup)
+    location /static/ {
+        root /path/to/jira_clone/client/build;
+        expires 30d;
+        add_header Cache-Control "public";
+    }
+
+    # Error pages
+    error_page 404 /index.html;
+}
+------------------
+sudo ln -s /etc/nginx/sites-available/jira_clone /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+
+#Ensure API is Running: Make sure the API server (api) is running in the background using a process manager like pm2:
+
+npm install -g pm2
+cd api
+pm2 start npm -- start
+
+Optional - Set Up HTTPS: Use Let's Encrypt for a free SSL certificate.
+
+    sudo apt install certbot python3-certbot-nginx
+    sudo certbot --nginx -d yourdomain.com
+
+4. Verify Deployment
+
+ http://yourdomain.com.
+    Ensure:
+        The React app loads properly.
+        API requests (e.g., http://yourdomain.com/api) are proxied correctly.
+
+
