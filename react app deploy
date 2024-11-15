@@ -70,4 +70,17 @@ Optional - Set Up HTTPS: Use Let's Encrypt for a free SSL certificate.
         The React app loads properly.
         API requests (e.g., http://yourdomain.com/api) are proxied correctly.
 
+-------------------------------------------------------------------
+sudo apt remove nodejs -y
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+node -v
+npm -v
+sudo npm install -g pm2
+mkdir -p ~/.npm-global
+npm config set prefix '~/.npm-global'
+nano ~/.bashrc
+export PATH=~/.npm-global/bin:$PATH
+source ~/.bashrc
+echo $PATH
 
